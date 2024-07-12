@@ -22,7 +22,7 @@ file( GLOB_RECURSE ENGINE CONFIG_DEPENDS include/*h include/*.cpp )
 ################################################################################
 # add the executable with all globbed files (project and engine)
 add_executable( ${PROJECT}
-#                ${EXAMPLE}
+                # ${EXAMPLE}
                 ${ENGINE}
                 )
 
