@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Public Methods
 
-void Scorecard::updateScore(unsigned category, const std::vector<int> &dice)
+void Scorecard::updateScore(Category category, const std::vector<int> &dice)
 {
     // Range check
     assert(category > 0 && (category - 1) < mCategoryFilled.size() && "updateScore category out of bounds");
@@ -32,21 +32,21 @@ void Scorecard::updateScore(unsigned category, const std::vector<int> &dice)
     std::map<int, int> counts = countDice(dice);
 
     switch (category) {
-        case 1: mAces = scoreForValue(counts, 1); break;
-        case 2: mTwos = scoreForValue(counts, 2); break;
-        case 3: mThrees = scoreForValue(counts, 3); break;
-        case 4: mFours = scoreForValue(counts, 4); break;
-        case 5: mFives = scoreForValue(counts, 5); break;
-        case 6: mSixes = scoreForValue(counts, 6); break;
-        case 7: mPair = scorePair(counts); break;
-        case 8: mTwoPairs = scoreTwoPairs(counts); break;
-        case 9: mThreeOfAKind = scoreThreeOfAKind(counts); break;
-        case 10: mFourOfAKind = scoreFourOfAKind(counts); break;
-        case 11: mFullHouse = scoreFullHouse(counts); break;
-        case 12: mSmallStraight = scoreSmallStraight(counts); break;
-        case 13: mLargeStraight = scoreLargeStraight(counts); break;
-        case 14: mYahtzee = scoreYahtzee(counts); break;
-        case 15: mChance = scoreChance(dice); break;
+        case ACES: mAces = scoreForValue(counts, 1); break;
+        case TWOS: mTwos = scoreForValue(counts, 2); break;
+        case THREES: mThrees = scoreForValue(counts, 3); break;
+        case FOURS: mFours = scoreForValue(counts, 4); break;
+        case FIVES: mFives = scoreForValue(counts, 5); break;
+        case SIXES: mSixes = scoreForValue(counts, 6); break;
+        case PAIR: mPair = scorePair(counts); break;
+        case TWO_PAIRS: mTwoPairs = scoreTwoPairs(counts); break;
+        case THREE_OF_A_KIND: mThreeOfAKind = scoreThreeOfAKind(counts); break;
+        case FOUR_OF_A_KIND: mFourOfAKind = scoreFourOfAKind(counts); break;
+        case FULL_HOUSE: mFullHouse = scoreFullHouse(counts); break;
+        case SMALL_STRAIGHT: mSmallStraight = scoreSmallStraight(counts); break;
+        case LARGE_STRAIGHT: mLargeStraight = scoreLargeStraight(counts); break;
+        case YAHTZEE: mYahtzee = scoreYahtzee(counts); break;
+        case CHANCE: mChance = scoreChance(dice); break;
     }
 
     mCategoryFilled[category - 1] = true;
@@ -76,7 +76,7 @@ void Scorecard::calculateTotals()
     mGrandTotal = mUpperSectionTotal + mUpperSectionBonus + mLowerSectionTotal;
 }
 
-std::map<int, int> Scorecard::countDice(const std::vector<int>& dice) const
+std::map<int, int> Scorecard::countDice(const std::vector<int>& dice)
 {
     std::map<int, int> counts;
     for (int die : dice) {
@@ -85,12 +85,13 @@ std::map<int, int> Scorecard::countDice(const std::vector<int>& dice) const
     return counts;
 }
 
-int Scorecard::scoreForValue(const std::map<int, int>& counts, int value) const
+int Scorecard::scoreForValue(const std::map<int, int>& counts, int value)
 {
-    return counts.at(value) * value;
+    auto iter = counts.find(value);
+    return iter != counts.end() ? iter->second * value : 0;
 }
 
-int Scorecard::scorePair(const std::map<int, int>& counts) const
+int Scorecard::scorePair(const std::map<int, int>& counts)
 {
     int highestDiceValue = 0;
     // Find the highest valued pair
@@ -105,7 +106,7 @@ int Scorecard::scorePair(const std::map<int, int>& counts) const
     return highestDiceValue * 2;
 }
 
-int Scorecard::scoreTwoPairs(const std::map<int, int>& counts) const
+int Scorecard::scoreTwoPairs(const std::map<int, int>& counts)
 {
     int pairsCount = 0;
     int score = 0;
@@ -117,9 +118,8 @@ int Scorecard::scoreTwoPairs(const std::map<int, int>& counts) const
         {
             pairsCount += 2;
             score += dice * 4;
-        }
-        // Account for both 2 and 3 of a kind as well
-        if (count >= 2)
+        } // Account for both 2 and 3 of a kind as well
+        else if (count >= 2)
         {
             pairsCount++;
             score += dice * 2;
@@ -129,7 +129,7 @@ int Scorecard::scoreTwoPairs(const std::map<int, int>& counts) const
     return (pairsCount >= 2) ? score : 0;
 }
 
-int Scorecard::scoreThreeOfAKind(const std::map<int, int>& counts) const
+int Scorecard::scoreThreeOfAKind(const std::map<int, int>& counts)
 {
     for (const auto& [dice, count] : counts)
     {
@@ -142,7 +142,7 @@ int Scorecard::scoreThreeOfAKind(const std::map<int, int>& counts) const
     return 0;
 }
 
-int Scorecard::scoreFourOfAKind(const std::map<int, int>& counts) const
+int Scorecard::scoreFourOfAKind(const std::map<int, int>& counts)
 {
     for (const auto& [dice, count] : counts)
     {
@@ -155,7 +155,7 @@ int Scorecard::scoreFourOfAKind(const std::map<int, int>& counts) const
     return 0;
 }
 
-int Scorecard::scoreFullHouse(const std::map<int, int>& counts) const
+int Scorecard::scoreFullHouse(const std::map<int, int>& counts)
 {
     bool hasThree = false;
     bool hasTwo = false;
@@ -175,32 +175,67 @@ int Scorecard::scoreFullHouse(const std::map<int, int>& counts) const
     return 0;
 }
 
-int Scorecard::scoreSmallStraight(const std::map<int, int>& counts) const
+int Scorecard::scoreSmallStraight(const std::map<int, int>& counts)
 {
-    std::vector<int> uniqueDice;
-    // Use the counts to create a unique dice vector
+    // A small straight must have at least 4 unique dice
+    if (counts.size() < 4)
+    {
+        return 0;
+    }
+
+    // Use the counts to create populate a potential straight
+    std::array<int, 6> straight = { 0, 0, 0, 0, 0, 0 };
     for (const auto& [dice, count] : counts)
     {
-        uniqueDice.push_back(dice);
+        straight[dice - 1]++;
     }
-    // Sort the vector for easier comparison
-    std::ranges::sort(uniqueDice);
 
-    // Three options for a small straight
-    if (std::vector<int>{1, 2, 3, 4} == uniqueDice ||
-        std::vector<int>{2, 3, 4, 5} == uniqueDice ||
-        std::vector<int>{3, 4, 5, 6} == uniqueDice)
+    // Check that there are no breaks in the straight
+    int length = 0;
+    int bestLength = 0;
+    for (int const & dice : straight)
     {
-        return 30;
+        if (dice)
+        {
+            if (length > 0)
+            {   // Continue the straight
+                ++length;
+            }
+            else
+            {   // Start a new run
+                length = 1;
+            }
+        }
+        else
+        {   // No die at this index, reset the straight
+            if (length > bestLength)
+            {
+                bestLength = length;
+            }
+            length = 0;
+        }
     }
-    // Small straight does not exist
-    return 0;
+
+    // No straight found
+    if (bestLength < 4 && length < 4)
+    {
+        return 0;
+    }
+
+    // Found a valid small straight
+    return 30;
 }
 
-int Scorecard::scoreLargeStraight(const std::map<int, int>& counts) const
+int Scorecard::scoreLargeStraight(const std::map<int, int>& counts)
 {
-    std::vector<int> uniqueDice;
+    // Large straight must use all 5 dice
+    if (counts.size() != 5)
+    {
+        return 0;
+    }
+
     // Use the counts to create a unique dice vector
+    std::vector<int> uniqueDice;
     for (const auto& [dice, count] : counts)
     {
         uniqueDice.push_back(dice);
@@ -208,7 +243,8 @@ int Scorecard::scoreLargeStraight(const std::map<int, int>& counts) const
     // Sort the vector for easier comparison
     std::ranges::sort(uniqueDice);
 
-    // Two options for a large straight
+    // Scoring a large straight is easier than scoring a small straight since
+    // there are only two possible valid solutions with all dice being used
     if (std::vector<int>{1, 2, 3, 4, 5} == uniqueDice ||
         std::vector<int>{2, 3, 4, 5, 6} == uniqueDice)
     {
@@ -218,7 +254,7 @@ int Scorecard::scoreLargeStraight(const std::map<int, int>& counts) const
     return 0;
 }
 
-int Scorecard::scoreYahtzee(const std::map<int, int>& counts) const
+int Scorecard::scoreYahtzee(const std::map<int, int>& counts)
 {
     // Could possibly early out when counts size is > 1 but counts max size is 5
     // so just checking all counts has a minimal cost to it
@@ -233,7 +269,7 @@ int Scorecard::scoreYahtzee(const std::map<int, int>& counts) const
     return 0;
 }
 
-int Scorecard::scoreChance(const std::vector<int>& dice) const
+int Scorecard::scoreChance(const std::vector<int>& dice)
 {
     int score = 0;
     // Simple summation of all dice
