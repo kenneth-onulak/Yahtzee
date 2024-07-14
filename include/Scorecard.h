@@ -45,7 +45,11 @@ class Scorecard
     // Compute the total score of the scorecard
     [[nodiscard]] int getTotalScore() const;
     // Check if a category has already been filled
-    bool isCategoryFilled(unsigned category) const;
+    bool isCategoryFilled(Category category) const;
+    // Helper function to count the values of each dice
+    static std::map<int, int> countDice(const std::vector<int>& dice) ;
+    // Get the category with the best scoring potential
+    int getMaxScoreCategory(const std::vector<int> & rolledDice) const;
 
     // Getter methods for each category
     int getAces() const { return mAces; }
@@ -108,8 +112,6 @@ class Scorecard
 
     // Compute the grand total score
     void calculateTotals();
-    // Helper function to count the values of each dice
-    static std::map<int, int> countDice(const std::vector<int>& dice) ;
     // Helper function for getting score for Aces through Sixes
     static int scoreForValue(const std::map<int, int>& counts, int value) ;
     // Compute the score for pair
@@ -130,12 +132,6 @@ class Scorecard
     static int scoreYahtzee(const std::map<int, int>& counts) ;
     // Compute the score for chance
     static int scoreChance(const std::vector<int>& dice) ;
-
-
-
-
-
-
 };
 
 #endif // YAHTZEE_SCORECARD_H

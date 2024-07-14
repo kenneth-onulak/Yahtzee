@@ -11,6 +11,8 @@
 
 #include "D6.h"
 #include "Scorecard.h"
+#include "Player.h"
+#include "Game.h"
 
 #include <unordered_set>
 #include <iostream>
@@ -165,11 +167,27 @@ void test1()
     std::cout << "Chance score : " << scorecard.getChance() << "\n";
 }
 
+void test2()
+{
+    // Set up the game
+    std::vector<Player> players = { Player("Player 1"), Player("PLayer 2") };
+    Game game(players);
+
+    // Run the game with 1 extra round to check all outcomes
+    for (int round = 1; round <= 16; ++round)
+    {
+        game.playRound();
+    }
+
+    // Display the final result
+    game.showScores();
+}
+
 int main(/*int argc, char** argv*/)
 {
     // Vector of function pointers
-    std::vector<void(*)()> pTests = { test0, test1 };
-    int test = 1;
+    std::vector<void(*)()> pTests = { test0, test1, test2 };
+    int test = 2;
 
     pTests[test]();
 

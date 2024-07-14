@@ -24,12 +24,20 @@ class Game
     // Simulate a single round of dice rolls
     void playRound();
     // Display the current scores
-    void showScores() const;
+    void showScores();
 
   private:
     int mCurrentPlayerIndex;      // Index of the current player
     std::vector<Player> mPlayers; // All players
     D6 mDice;                     // Single instance of a D6 used for all rolls
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Private Methods
+
+    // Roll all 5 dice
+    std::vector<int> rollDice();
+    // Get the first open category
+    int getFirstOpenCategory(Scorecard & scorecard);
 };
 
 #endif // YAHTZEE_GAME_H

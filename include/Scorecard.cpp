@@ -23,9 +23,6 @@
 
 void Scorecard::updateScore(Category category, const std::vector<int> &dice)
 {
-    // Range check
-    assert(category > 0 && (category - 1) < mCategoryFilled.size() && "updateScore category out of bounds");
-
     // Since most scoring functions use the count of the dice for checking the
     // score, it is beneficial to just count the dice once then pass it along
     // when computing the score
@@ -58,11 +55,61 @@ int Scorecard::getTotalScore() const
     return mGrandTotal;
 }
 
-bool Scorecard::isCategoryFilled(unsigned category) const
+bool Scorecard::isCategoryFilled(Category category) const
 {
-    // Range check
-    assert((category - 1) < mCategoryFilled.size() && "isCategoryFilled category out of bounds");
+    // Using an enum for the category removes the need for a range check
     return mCategoryFilled[category - 1];
+}
+
+std::map<int, int> Scorecard::countDice(const std::vector<int>& dice)
+{
+    std::map<int, int> counts;
+    for (int die : dice) {
+        counts[die]++;
+    }
+    return counts;
+}
+
+int Scorecard::getMaxScoreCategory(const std::vector<int> & rolledDice) const
+{
+    int maxScore = 0;       // The maximum score for the rolled dice
+    int bestCategory = -1;  // The category the produces the maximum score
+    std::map<int, int> counts = countDice(rolledDice);
+
+    // Check all categories and determine the best one
+    for (int category = ACES; category <= CHANCE; ++category)
+    {
+        int score = 0;
+        if (!isCategoryFilled(static_cast<Category>(category)))
+        {
+            switch (category)
+            {
+                case ACES: score = scoreForValue(counts, 1); break;
+                case TWOS: score = scoreForValue(counts, 2); break;
+                case THREES: score = scoreForValue(counts, 3); break;
+                case FOURS: score = scoreForValue(counts, 4); break;
+                case FIVES: score = scoreForValue(counts, 5); break;
+                case SIXES: score = scoreForValue(counts, 6); break;
+                case PAIR: score = scorePair(counts); break;
+                case TWO_PAIRS: score = scoreTwoPairs(counts); break;
+                case THREE_OF_A_KIND: score = scoreThreeOfAKind(counts); break;
+                case FOUR_OF_A_KIND: score = scoreFourOfAKind(counts); break;
+                case FULL_HOUSE: score = scoreFullHouse(counts); break;
+                case SMALL_STRAIGHT: score = scoreSmallStraight(counts); break;
+                case LARGE_STRAIGHT: score = scoreLargeStraight(counts); break;
+                case YAHTZEE: score = scoreYahtzee(counts); break;
+                case CHANCE: score = scoreChance(rolledDice); break;
+            }
+
+            if (score > maxScore)
+            {
+                maxScore = score;
+                bestCategory = category;
+            }
+        }
+    }
+
+    return bestCategory;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,15 +121,6 @@ void Scorecard::calculateTotals()
     mUpperSectionBonus = (mUpperSectionTotal >= 63) ? 35 : 0;
     mLowerSectionTotal = mPair + mTwoPairs + mThreeOfAKind + mFourOfAKind + mFullHouse + mSmallStraight + mLargeStraight + mYahtzee + mChance + mYahtzeeBonus;
     mGrandTotal = mUpperSectionTotal + mUpperSectionBonus + mLowerSectionTotal;
-}
-
-std::map<int, int> Scorecard::countDice(const std::vector<int>& dice)
-{
-    std::map<int, int> counts;
-    for (int die : dice) {
-        counts[die]++;
-    }
-    return counts;
 }
 
 int Scorecard::scoreForValue(const std::map<int, int>& counts, int value)
