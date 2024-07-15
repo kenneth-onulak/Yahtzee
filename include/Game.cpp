@@ -12,6 +12,7 @@
 #include "Game.h"
 #include <iostream>
 #include <format>
+#include <unordered_set>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Public Methods
@@ -26,22 +27,22 @@ void printCategory(int category)
 {
     switch (category)
     {
-    case 1: std::cout << "ACES\n"; break;
-    case 2: std::cout << "TWOS\n" ; break;
-    case 3: std::cout << "THREES\n" ; break;
-    case 4: std::cout << "FOURS\n" ; break;
-    case 5: std::cout << "FIVES\n" ; break;
-    case 6: std::cout << "SIXES\n" ; break;
-    case 7: std::cout << "PAIR\n" ; break;
-    case 8: std::cout << "TWO PAIR\n" ; break;
-    case 9: std::cout << "THREE OF A KIND\n" ; break;
-    case 10: std::cout << "FOUR OF A KIND\n" ; break;
-    case 11: std::cout << "FULL HOUSE\n" ; break;
-    case 12: std::cout << "SMALL STRAIGHT\n" ; break;
-    case 13: std::cout << "LARGE STRAIGHT\n" ; break;
-    case 14: std::cout << "YAHTZEE\n" ; break;
-    case 15: std::cout << "CHANCE\n" ; break;
-    default: std::cout << "NONE\n"; break;
+    case 1: std::cout << "ACES"; break;
+    case 2: std::cout << "TWOS" ; break;
+    case 3: std::cout << "THREES" ; break;
+    case 4: std::cout << "FOURS" ; break;
+    case 5: std::cout << "FIVES" ; break;
+    case 6: std::cout << "SIXES" ; break;
+    case 7: std::cout << "PAIR" ; break;
+    case 8: std::cout << "TWO PAIR" ; break;
+    case 9: std::cout << "THREE OF A KIND" ; break;
+    case 10: std::cout << "FOUR OF A KIND" ; break;
+    case 11: std::cout << "FULL HOUSE" ; break;
+    case 12: std::cout << "SMALL STRAIGHT" ; break;
+    case 13: std::cout << "LARGE STRAIGHT" ; break;
+    case 14: std::cout << "YAHTZEE" ; break;
+    case 15: std::cout << "CHANCE" ; break;
+    default: std::cout << "NONE"; break;
     }
 }
 
@@ -50,7 +51,7 @@ void Game::playRound()
     for (auto & player : mPlayers)
     {   // Roll the dice and max out the score for that roll
         std::vector<int> rolledDice = rollDice();
-        int bestCategory = player.getScorecard().getMaxScoreCategory(rolledDice);
+        int bestCategory = player.getScorecard().getMaxScoreCategory(rolledDice, false);
 
         std::cout << player.getName() << " rolled : ";
         for (auto const & dice : rolledDice)
@@ -79,6 +80,48 @@ void Game::playRound()
             std::cout << player.getName() << " has no available categories to place the roll." << std::endl;
         }
     }
+}
+
+void Game::playRound2()
+{
+    int iterations = 0;
+    std::unordered_set<int> uniqueCategories;
+
+    // Only checking 14 categories
+    // CHANCE is commented out in scorecard since CHANCE is often better than
+    // ACES through SIXES
+    while (uniqueCategories.size() < 14)
+    {
+        for (auto & player : mPlayers)
+        {   // Roll the dice and max out the score for that roll
+            std::vector<int> rolledDice = rollDice();
+            int bestCategory = player.getScorecard().getMaxScoreCategory(rolledDice, true);
+
+            std::cout << player.getName() << " rolled : ";
+            for (auto const & dice : rolledDice)
+            {
+                std::cout << dice << " ";
+            }
+            std::cout << "\n";
+
+            // All scores are filled if there is still no best category
+            if (bestCategory != -1)
+            {
+                player.getScorecard().updateScore(static_cast<Category>(bestCategory), rolledDice);
+                std::cout << player.getName() << " placed roll in category ";
+                printCategory(bestCategory);
+                std::cout << " for a score of " << player.getScorecard().getScore(static_cast<Category>(bestCategory)) << "\n";
+                uniqueCategories.insert(bestCategory);
+            }
+            else
+            {
+                std::cout << player.getName() << " has no available categories to place the roll." << "\n";
+            }
+        }
+        ++iterations;
+    }
+
+    std::cout << "Iterations: " << iterations << std::endl;
 }
 
 void Game::showScores()

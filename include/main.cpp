@@ -183,11 +183,21 @@ void test2()
     game.showScores();
 }
 
+void test3()
+{
+    // Set up the game
+    std::vector<Player> players = { Player("Player") };
+    Game game(players);
+
+    // Run the game until you get all outputs at least once (other than CHANCE)
+    game.playRound2();
+}
+
 int main(/*int argc, char** argv*/)
 {
     // Vector of function pointers
-    std::vector<void(*)()> pTests = { test0, test1, test2 };
-    int test = 2;
+    std::vector<void(*)()> pTests = { test0, test1, test2, test3 };
+    int test = 3;
 
     pTests[test]();
 

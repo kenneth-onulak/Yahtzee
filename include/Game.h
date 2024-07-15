@@ -23,6 +23,8 @@ class Game
     Game(const std::vector<Player> & players);
     // Simulate a single round of dice rolls
     void playRound();
+    // Does care about score, just rolls the dice and produces the result
+    void playRound2();
     // Display the current scores
     void showScores();
 

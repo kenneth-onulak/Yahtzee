@@ -49,7 +49,9 @@ class Scorecard
     // Helper function to count the values of each dice
     static std::map<int, int> countDice(const std::vector<int>& dice) ;
     // Get the category with the best scoring potential
-    int getMaxScoreCategory(const std::vector<int> & rolledDice) const;
+    int getMaxScoreCategory(const std::vector<int> & rolledDice, bool overrideFilledCategory) const;
+    // Get the points for a specific category
+    int getScore(Category category) const;
 
     // Getter methods for each category
     int getAces() const { return mAces; }

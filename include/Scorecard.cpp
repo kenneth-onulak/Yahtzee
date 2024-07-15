@@ -28,7 +28,8 @@ void Scorecard::updateScore(Category category, const std::vector<int> &dice)
     // when computing the score
     std::map<int, int> counts = countDice(dice);
 
-    switch (category) {
+    switch (category)
+    {
         case ACES: mAces = scoreForValue(counts, 1); break;
         case TWOS: mTwos = scoreForValue(counts, 2); break;
         case THREES: mThrees = scoreForValue(counts, 3); break;
@@ -70,7 +71,7 @@ std::map<int, int> Scorecard::countDice(const std::vector<int>& dice)
     return counts;
 }
 
-int Scorecard::getMaxScoreCategory(const std::vector<int> & rolledDice) const
+int Scorecard::getMaxScoreCategory(const std::vector<int> & rolledDice, bool overrideFilledCategory) const
 {
     int maxScore = 0;       // The maximum score for the rolled dice
     int bestCategory = -1;  // The category the produces the maximum score
@@ -80,7 +81,7 @@ int Scorecard::getMaxScoreCategory(const std::vector<int> & rolledDice) const
     for (int category = ACES; category <= CHANCE; ++category)
     {
         int score = 0;
-        if (!isCategoryFilled(static_cast<Category>(category)))
+        if (overrideFilledCategory || !isCategoryFilled(static_cast<Category>(category)))
         {
             switch (category)
             {
@@ -98,7 +99,7 @@ int Scorecard::getMaxScoreCategory(const std::vector<int> & rolledDice) const
                 case SMALL_STRAIGHT: score = scoreSmallStraight(counts); break;
                 case LARGE_STRAIGHT: score = scoreLargeStraight(counts); break;
                 case YAHTZEE: score = scoreYahtzee(counts); break;
-                case CHANCE: score = scoreChance(rolledDice); break;
+                // case CHANCE: score = scoreChance(rolledDice); break;
             }
 
             if (score > maxScore)
@@ -110,6 +111,28 @@ int Scorecard::getMaxScoreCategory(const std::vector<int> & rolledDice) const
     }
 
     return bestCategory;
+}
+
+int Scorecard::getScore(Category category) const
+{
+    switch (category)
+    {
+        case ACES: return mAces;
+        case TWOS: return mTwos;
+        case THREES: return mThrees;
+        case FOURS: return mFours;
+        case FIVES: return mFives;
+        case SIXES: return mSixes;
+        case PAIR: return mPair;
+        case TWO_PAIRS: return mTwoPairs;
+        case THREE_OF_A_KIND: return mThreeOfAKind;
+        case FOUR_OF_A_KIND: return mFourOfAKind;
+        case FULL_HOUSE: return mFullHouse;
+        case SMALL_STRAIGHT: return mSmallStraight;
+        case LARGE_STRAIGHT: return mLargeStraight;
+        case YAHTZEE: return mYahtzee;
+        case CHANCE: return mChance;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
